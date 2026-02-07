@@ -22,7 +22,29 @@ cloudinary.config({
 const app = express();
 const PORT = process.env.PORT || 8800;
 
-app.use(cors());
+
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://x-by-dan.fun",
+  "https://www.x-by-dan.fun" // Good practice to include the 'www' version too
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true, // Required if you are sending cookies or authorization headers
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json({ limit: "5mb" })); // to parse req.body
 app.use(express.urlencoded({ extended: true })); // to parse form data (urlencoded)
 app.use(cookieParser());
